@@ -17,6 +17,8 @@ const categories = [
   "Fiction",
   "Horror",
   "Adventure",
+  "Books",
+  "Marketing",
 ];
 
 const TopSellers = () => {

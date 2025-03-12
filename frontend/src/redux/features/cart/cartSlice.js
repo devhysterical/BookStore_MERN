@@ -28,18 +28,32 @@ const cartSlice = createSlice({
     },
     // Action tăng số lượng sản phẩm đã có
     increaseQuantity: (state, action) => {
-      const existingItem = state.cartItems.find(
+      const item = state.cartItems.find(
         (item) => item._id === action.payload._id
       );
-      if (existingItem) {
-        existingItem.quantity++;
+      if (item) {
+        item.quantity++;
+      }
+    },
+
+    decreaseQuantity: (state, action) => {
+      const item = state.cartItems.find(
+        (item) => item._id === action.payload._id
+      );
+      if (item && item.quantity > 1) {
+        item.quantity--;
       }
     },
   },
 });
 
-export const { addNewItem, increaseQuantity, removeItem, clearItems } =
-  cartSlice.actions;
+export const {
+  addNewItem,
+  increaseQuantity,
+  removeItem,
+  clearItems,
+  decreaseQuantity,
+} = cartSlice.actions;
 
 // Thunk action để xử lý thêm sản phẩm vào giỏ hàng có xác nhận
 export const addToCart = (product) => async (dispatch, getState) => {
@@ -78,6 +92,23 @@ export const addToCart = (product) => async (dispatch, getState) => {
       });
     }
     // Nếu người dùng không xác nhận, không làm gì cả (hoặc có thể thêm logic khác nếu cần)
+  }
+};
+
+// Thunk action xác nhận xoá phẩm khỏi giỏ hàng
+export const confirmRemoveItem = (product) => async (dispatch) => {
+  const result = await Swal.fire({
+    title: "Remove item?",
+    text: "Do you want to remove this item from your cart?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, remove it!",
+  });
+
+  if (result.isConfirmed) {
+    dispatch(removeItem(product)); // Gọi action xóa sản phẩm
   }
 };
 
