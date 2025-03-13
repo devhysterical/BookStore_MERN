@@ -15,7 +15,15 @@ const Login = () => {
   } = useForm();
 
   const onSubmit = (data) => console.log(data);
-  const handleGoogleLogin = () => {};
+  // Hàm xử lý đăng nhập bằng Google
+  const handleGoogleLogin = () => {
+    // Thực hiện các xử lý đăng nhập bằng Google tại đây
+  };
+
+  // Hàm xử lý đăng nhập bằng Facebook
+  const handleFacebookLogin = () => {
+    // Thực hiện các xử lý đăng nhập bằng Facebook tại đây
+  };
   return (
     <div className="h-[calc(100vh-120px)] flex justify-center items-center">
       <div className="w-full max-w-sm mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
@@ -92,7 +100,9 @@ const Login = () => {
         </div>
         {/* Login with Facebook */}
         <div className="mt-4">
-          <button className="w-full flex flex-wrap gap-1 justify-center items-center bg-white border border-gray-300 hover:border-blue-500 text-gray-700 font-medium py-2 px-4 rounded mt-4">
+          <button
+            onClick={handleFacebookLogin}
+            className="w-full flex flex-wrap gap-1 justify-center items-center bg-white border border-gray-300 hover:border-blue-500 text-gray-700 font-medium py-2 px-4 rounded mt-4">
             <SiFacebook />
             Login with Facebook
           </button>
