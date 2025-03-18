@@ -18,7 +18,7 @@ const postABook = async (req, res) => {
 const getAllBooks = async (req, res) => {
   try {
     const books = await Book.find({}).sort({ createdAt: -1 });
-    res.status(200).send({ message: "Fetched all books", book: books });
+    res.status(200).send({ book: books });
   } catch (error) {
     console.error("Error while fetching all books", error);
     res.status(500).send({ message: "Failed to fetch all books" });
@@ -33,7 +33,7 @@ const getSingleBook = async (req, res) => {
     if (!book) {
       return res.status(404).send({ message: "Book is not found" });
     }
-    res.status(200).send({ message: "Fetched a book", book: book });
+    res.status(200).send({ book: book });
   } catch (error) {
     console.error("Error while fetching a book", error);
     res.status(500).send({ message: "Failed to fetch a book" });
@@ -50,9 +50,7 @@ const UpdateBook = async (req, res) => {
     if (!updatedBook) {
       return res.status(404).send({ message: "Book is not found" });
     }
-    res
-      .status(200)
-      .send({ message: "Book updated successfully", book: updatedBook });
+    res.status(200).send({ book: updatedBook });
   } catch (error) {
     console.error("Error while updating a book", error);
     res.status(500).send({ message: "Failed to update a book" });
@@ -67,9 +65,7 @@ const deleteABook = async (req, res) => {
     if (!deletedBook) {
       return res.status(404).send({ message: "Book is not found" });
     }
-    res
-      .status(200)
-      .send({ message: "Book deleted successfully", book: deletedBook });
+    res.status(200).send({ book: deletedBook });
   } catch (error) {
     console.error("Error while deleting a book", error);
     res.status(500).send({ message: "Failed to delete a book" });
