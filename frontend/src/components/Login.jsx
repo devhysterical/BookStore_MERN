@@ -1,86 +1,114 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { SiFacebook } from "react-icons/si";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import useAuth from "../context/useAuth";
 
 const Login = () => {
   const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const { loginUser, googleLogin } = useAuth();
+  const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => console.log(data);
-  // Hàm xử lý đăng nhập bằng Google
-  const handleGoogleLogin = () => {
-    // Thực hiện các xử lý đăng nhập bằng Google tại đây
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+
+  const onSubmit = async (data) => {
+    try {
+      await loginUser(data.email, data.password);
+      alert("Login successfully!");
+      navigate("/");
+    } catch (error) {
+      setMessage("Invalid email or password. Please try again.");
+      console.error(error);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await googleLogin();
+      alert("Login with Google successfully!");
+      navigate("/");
+    } catch (error) {
+      setMessage("Login with Google failed");
+      console.error(error);
+    }
   };
 
   // Hàm xử lý đăng nhập bằng Facebook
   const handleFacebookLogin = () => {
     // Thực hiện các xử lý đăng nhập bằng Facebook tại đây
+    // Hoàn thành trong tương lai
   };
+
   return (
     <div className="h-[calc(100vh-120px)] flex justify-center items-center">
-      <div className="w-full max-w-sm mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <h2 className="text-xl font-semibold mb-4 text-center">
-          Login to your account
-        </h2>
+      <div className="w-full max-w-sm bg-white shadow-md rounded px-8 pt-6 pb-8">
+        <h2 className="text-xl font-semibold mb-4 text-center">Login</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           {/* Email */}
           <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-gray-700 text-sm font-bold mb-2">
-              Email address
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Email
             </label>
             <input
-              {...register("email", { required: true })}
+              {...register("email", { required: "Email is required" })}
               type="email"
-              name="email"
-              id="email"
-              autoComplete="email"
-              placeholder="Enter your email address"
-              className="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow"
+              placeholder="Enter your email"
+              className="w-full border rounded px-3 py-2 focus:outline-none focus:shadow"
             />
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.email.message}
+              </p>
+            )}
           </div>
+
           {/* Password */}
-          <div className="mb-4">
-            <label
-              htmlFor="password"
-              className="block text-gray-700 text-sm font-bold mb-2">
+          <div className="mb-4 relative">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
               Password
             </label>
             <input
-              {...register("password", { required: true })}
-              type="password"
-              name="password"
-              id="password"
-              autoComplete="current-password"
+              {...register("password", { required: "Password is required" })}
+              type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
-              className="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow"
+              className="w-full border rounded px-3 py-2 pr-10 focus:outline-none focus:shadow"
             />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center text-gray-500 mt-4">
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.password.message}
+              </p>
+            )}
           </div>
+
           {/* Error message */}
           {message && (
             <p className="text-red-500 text-xs italic mb-3">{message}</p>
           )}
 
-          {/* Submit */}
-          <div>
-            <button
-              type="submit"
-              className=" flex w-full justify-center text-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded focus:outline-none focus:shadow-outline">
-              Login
-            </button>
-          </div>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow">
+            Login
+          </button>
         </form>
-        <p className="mt-10 text-center text-sm/6 text-gray-500 font-medium">
-          {/* &apos; là dùng để thay thế cho dấu ' */}
+
+        <p className="mt-4 text-center text-sm text-gray-500">
           Don&apos;t have an account?{" "}
           <Link
             to="/register"
@@ -90,23 +118,21 @@ const Login = () => {
         </p>
 
         {/* Login with Google */}
-        <div className="mt-4">
-          <button
-            onClick={handleGoogleLogin}
-            className="w-full flex flex-wrap gap-1 justify-center items-center bg-white border border-gray-300 hover:border-blue-500 text-gray-700 font-medium py-2 px-4 rounded mt-4">
-            <FcGoogle className="mr-2" />
-            Login with Google
-          </button>
-        </div>
+        <button
+          onClick={handleGoogleLogin}
+          className="w-full flex items-center justify-center border border-gray-300 hover:border-blue-500 text-gray-700 font-medium py-2 px-4 rounded mt-4">
+          <FcGoogle className="mr-2" />
+          Login with Google
+        </button>
+
         {/* Login with Facebook */}
-        <div className="mt-4">
-          <button
-            onClick={handleFacebookLogin}
-            className="w-full flex flex-wrap gap-1 justify-center items-center bg-white border border-gray-300 hover:border-blue-500 text-gray-700 font-medium py-2 px-4 rounded mt-4">
-            <SiFacebook />
-            Login with Facebook
-          </button>
-        </div>
+        <button
+          onClick={handleFacebookLogin}
+          className="w-full flex items-center justify-center border border-gray-300 hover:border-blue-500 text-gray-700 font-medium py-2 px-4 rounded mt-4">
+          <SiFacebook className="mr-2" />
+          Login with Facebook
+        </button>
+
         <p className="mt-5 text-center text-gray-500 text-xs">
           ©2025 Book Store. All rights reserved.
         </p>
