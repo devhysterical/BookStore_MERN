@@ -3,18 +3,18 @@
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import useAuth from "../../context/useAuth";
 
 // Component hiển thị trang thanh toán (CheckoutPage)
 const CheckoutPage = () => {
   // Lấy danh sách sản phẩm trong giỏ hàng từ Redux store
   const cartItems = useSelector((state) => state.cart.cartItems);
-  // Giả sử người dùng hiện tại được lưu trong state.auth.currentUser
-  const currentUser = useSelector((state) => state.auth?.currentUser);
-
   // Tính tổng tiền của các sản phẩm trong giỏ hàng
   const totalPrice = cartItems
     .reduce((total, item) => total + item.newPrice * item.quantity, 0)
     .toFixed(2);
+  // Lấy thông tin người dùng hiện tại từ context
+  const { currentUser } = useAuth();
 
   // Khởi tạo các hàm hỗ trợ từ react-hook-form để xử lý form
   const {
@@ -70,8 +70,7 @@ const CheckoutPage = () => {
               {/* Form đặt hàng */}
               <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="grid gap-4 gap-y-2 text-sm grid-cols-1 lg:grid-cols-3 my-8"
-              >
+                className="grid gap-4 gap-y-2 text-sm grid-cols-1 lg:grid-cols-3 my-8">
                 {/* Phần mô tả chung của form */}
                 <div className="text-gray-600">
                   <p className="font-medium text-lg">Personal Details</p>
@@ -179,8 +178,7 @@ const CheckoutPage = () => {
                         {/* Nút xóa nội dung (không có hành động cụ thể) */}
                         <button
                           tabIndex="-1"
-                          className="cursor-pointer outline-none focus:outline-none transition-all text-gray-300 hover:text-red-600"
-                        >
+                          className="cursor-pointer outline-none focus:outline-none transition-all text-gray-300 hover:text-red-600">
                           <svg
                             className="w-4 h-4 mx-2 fill-current"
                             xmlns="http://www.w3.org/2000/svg"
@@ -188,8 +186,7 @@ const CheckoutPage = () => {
                             stroke="currentColor"
                             strokeWidth="2"
                             strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
+                            strokeLinejoin="round">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                           </svg>
@@ -197,8 +194,7 @@ const CheckoutPage = () => {
                         {/* Nút hiển thị dropdown (không có hành động cụ thể) */}
                         <button
                           tabIndex="-1"
-                          className="cursor-pointer outline-none focus:outline-none border-l border-gray-200 transition-all text-gray-300 hover:text-blue-600"
-                        >
+                          className="cursor-pointer outline-none focus:outline-none border-l border-gray-200 transition-all text-gray-300 hover:text-blue-600">
                           <svg
                             className="w-4 h-4 mx-2 fill-current"
                             xmlns="http://www.w3.org/2000/svg"
@@ -206,8 +202,7 @@ const CheckoutPage = () => {
                             stroke="currentColor"
                             strokeWidth="2"
                             strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
+                            strokeLinejoin="round">
                             <polyline points="18 15 12 9 6 15"></polyline>
                           </svg>
                         </button>
@@ -238,8 +233,7 @@ const CheckoutPage = () => {
                             stroke="currentColor"
                             strokeWidth="2"
                             strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
+                            strokeLinejoin="round">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                           </svg>
@@ -247,8 +241,7 @@ const CheckoutPage = () => {
                         {/* Nút hiển thị dropdown */}
                         <button
                           tabIndex="-1"
-                          className="cursor-pointer outline-none focus:outline-none border-l border-gray-200 transition-all text-gray-300 hover:text-blue-600"
-                        >
+                          className="cursor-pointer outline-none focus:outline-none border-l border-gray-200 transition-all text-gray-300 hover:text-blue-600">
                           <svg
                             className="w-4 h-4 mx-2 fill-current"
                             xmlns="http://www.w3.org/2000/svg"
@@ -256,8 +249,7 @@ const CheckoutPage = () => {
                             stroke="currentColor"
                             strokeWidth="2"
                             strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
+                            strokeLinejoin="round">
                             <polyline points="18 15 12 9 6 15"></polyline>
                           </svg>
                         </button>
@@ -318,8 +310,7 @@ const CheckoutPage = () => {
                       <div className="inline-flex items-end">
                         <button
                           disabled={!isChecked}
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        >
+                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                           Place an Order
                         </button>
                       </div>
