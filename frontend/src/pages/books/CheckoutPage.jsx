@@ -2,8 +2,10 @@
 // import { current } from "@reduxjs/toolkit";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../context/useAuth";
+import { useCreateOrderMutation } from "../../redux/features/orders/ordersApi";
+import Swal from "sweetalert2";
 
 // Component hiển thị trang thanh toán (CheckoutPage)
 const CheckoutPage = () => {
@@ -24,12 +26,14 @@ const CheckoutPage = () => {
     formState: { errors }, // Lấy thông tin lỗi của form
   } = useForm();
 
+  const [createOrder, { isLoading, error }] = useCreateOrderMutation();
+  const navigate = useNavigate();
+
   // Theo dõi checkbox đồng ý với Terms & Conditions
   const isChecked = watch("billing_same");
 
   // Hàm xử lý submit form
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
     // Xử lý đặt hàng: tạo đối tượng đơn hàng mới
     const newOrder = {
       name: data.name,
@@ -45,9 +49,27 @@ const CheckoutPage = () => {
       productIDs: cartItems.map((item) => item?._id),
       totalPrice: totalPrice,
     };
-    console.log(newOrder);
-    // Có thể gửi đơn hàng mới này lên server hoặc xử lý tiếp theo tại đây
+    try {
+      await createOrder(newOrder).unwrap();
+      Swal.fire({
+        title: "Confirm Order",
+        text: "Your order placed successfully.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, It's OK!",
+      });
+      navigate("/orders");
+    } catch (error) {
+      console.log("Error while creating an order", error);
+      alert("Error while creating an order");
+    }
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <section>
