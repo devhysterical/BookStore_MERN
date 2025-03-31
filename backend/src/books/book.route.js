@@ -7,6 +7,7 @@ const {
   UpdateBook,
   deleteABook,
 } = require("./book.controller");
+const verifyAdminToken = require("../middleware/verifyAdminToken");
 
 // Logic: frontend => backend server => controller => book schema => database => send to server => back to frontend
 
@@ -16,7 +17,7 @@ const {
  * @description Submit a book from frontend to backend
  * @access Public
  */
-router.post("/create-book", postABook);
+router.post("/create-book", verifyAdminToken, postABook);
 
 // GET method (All books)
 /**
@@ -40,7 +41,7 @@ router.get("/:id", getSingleBook);
  * @description Update a book from the database
  * @access Public
  */
-router.put("/edit/:id", UpdateBook);
+router.put("/edit/:id", verifyAdminToken, UpdateBook);
 
 // DELETE method
 /**
@@ -48,6 +49,6 @@ router.put("/edit/:id", UpdateBook);
  * @description Delete a book from the database
  * @access Public
  */
-router.delete("/:id", deleteABook);
+router.delete("/:id", verifyAdminToken, deleteABook);
 
 module.exports = router;
