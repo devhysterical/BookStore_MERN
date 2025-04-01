@@ -15,6 +15,9 @@ router.post("/admin", async (req, res) => {
       return res.status(404).json({ message: "Admin is not found" });
     }
 
+    /*
+    TODO: chưa fix lỗi bcrypt, vẫn bị lỗi không đăng nhập admin được từ sau lần đầu tiên
+    */
     // Sử dụng bcrypt để so sánh mật khẩu đã được hash
     // const isMatch = await bcrypt.compare(password, admin.password);
     // if (!isMatch) {
