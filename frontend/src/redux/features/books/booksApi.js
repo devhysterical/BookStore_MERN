@@ -8,6 +8,7 @@ const baseQuery = fetchBaseQuery({
     const token = localStorage.getItem("token");
     if (token) {
       headers.set("authorization", `Bearer ${token}`);
+      console.log("Using token:", token.substring(0, 15) + "..."); // Log to verify token
     }
     return headers;
   },
