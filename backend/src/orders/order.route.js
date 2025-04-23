@@ -1,10 +1,15 @@
-const express = require('express');
-const { createAOrder, getOrderByEmail } = require('./order.controller');
+const express = require("express");
+const orderController = require("./order.controller");
+
 const router = express.Router();
 
 // order enpoint
-router.post("/", createAOrder);
+router.post("/", orderController.createAOrder);
 
 // get order by user email
-router.get("/email/:email", getOrderByEmail);
+router.get("/email/:email", orderController.getOrderByEmail);
+
+// Route để cập nhật đơn hàng theo ID
+router.put("/:id", orderController.updateOrder);
+
 module.exports = router;

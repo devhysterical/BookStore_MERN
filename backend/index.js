@@ -24,11 +24,13 @@ const bookRoutes = require("./src/books/book.route");
 const orderRoutes = require("./src/orders/order.route");
 const userRoutes = require("./src/users/user.route");
 const adminRoutes = require("./src/stats/admin.stats");
+const paymentRoutes = require("./src/payment/payment.route");
 
 app.use("/api/books", bookRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/auth", userRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/payment", paymentRoutes);
 
 
 async function main() {

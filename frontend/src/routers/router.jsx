@@ -11,10 +11,11 @@ import OrderPage from "../pages/books/OrderPage.jsx";
 import AdminRoute from "./AdminRoute.jsx";
 import AdminLogin from "../components/AdminLogin.jsx";
 import DashBoardLayout from "../pages/dashboard/DashBoardLayout.jsx";
-import Dashboard from "../pages/dashboard/DashBoard.jsx";
+import Dashboard from "../pages/dashboard/Dashboard.jsx";
 import ManageBooks from "../pages/dashboard/manageBooks/ManageBooks.jsx";
 import AddBook from "../pages/dashboard/addBook/AddBook.jsx";
 import UpdateBook from "../pages/dashboard/EditBook/UpdateBook.jsx";
+import PaymentResultPage from "../pages/payment/PaymentResultPage";
 
 const router = createBrowserRouter([
   {
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
       {
         path: "/books/:id",
         element: <SingleBook />,
+      },
+      {
+        path: "/payment/result",
+        element: <PaymentResultPage />,
       },
     ],
   },

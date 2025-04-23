@@ -25,8 +25,21 @@ const orderApi = createApi({
       }),
       providesTags: ["Order"],
     }),
+    // update order
+    updateOrder: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Order"],
+    }),
   }),
 });
 
-export const { useCreateOrderMutation, useGetOrderByEmailQuery } = orderApi;
+export const {
+  useCreateOrderMutation,
+  useGetOrderByEmailQuery,
+  useUpdateOrderMutation,
+} = orderApi;
 export default orderApi;
