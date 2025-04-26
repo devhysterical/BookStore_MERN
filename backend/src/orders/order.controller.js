@@ -51,12 +51,36 @@ const updateOrder = async (req, res) => {
     // *** Log lỗi chi tiết ra console backend ***
     console.error(`[ERROR] Failed to update order ${req.params.id}:`, error);
     // Trả về lỗi 500 chung chung cho client
+    res.status(500).json({
+      message: "Internal server error while updating order",
+      error: error.message,
+    });
+  }
+};
+
+// Get all orders (for admin)
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({}).sort({ createdAt: -1 }); // Sort newest first
+    res.status(200).json(orders);
+  } catch (error) {
     res
       .status(500)
-      .json({
-        message: "Internal server error while updating order",
-        error: error.message,
-      });
+      .json({ message: "Failed to fetch orders", error: error.message });
+  }
+};
+
+const getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id).populate("productIDs"); // Populate product details if needed
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    res.status(200).json(order);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch order details", error: error.message });
   }
 };
 
@@ -64,4 +88,6 @@ module.exports = {
   createAOrder,
   getOrderByEmail,
   updateOrder,
+  getAllOrders,
+  getOrderById,
 };

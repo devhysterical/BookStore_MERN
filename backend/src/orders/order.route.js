@@ -1,15 +1,16 @@
 const express = require("express");
 const orderController = require("./order.controller");
+const verifyAdmin = require("../middleware/verifyAdminToken");
 
 const router = express.Router();
 
-// order enpoint
 router.post("/", orderController.createAOrder);
-
-// get order by user email
 router.get("/email/:email", orderController.getOrderByEmail);
 
-// Route để cập nhật đơn hàng theo ID
+router.use(verifyAdmin);
+
+router.get("/", orderController.getAllOrders); // GET all orders (Admin)
+router.get("/:id", orderController.getOrderById);
 router.put("/:id", orderController.updateOrder);
 
 module.exports = router;
