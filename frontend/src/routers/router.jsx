@@ -17,6 +17,7 @@ import AddBook from "../pages/dashboard/addBook/AddBook.jsx";
 import UpdateBook from "../pages/dashboard/EditBook/UpdateBook.jsx";
 import PaymentResultPage from "../pages/payment/PaymentResultPage";
 import ManageOrdersPage from "./../pages/dashboard/manageOrders/ManageOrdersPage";
+import StatisticsPage from "../pages/dashboard/statistics/StatisticsPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -118,6 +119,14 @@ const router = createBrowserRouter([
         element: (
           <AdminRoute>
             <ManageOrdersPage />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "statistics",
+        element: (
+          <AdminRoute>
+            <StatisticsPage />
           </AdminRoute>
         ),
       },

@@ -30,6 +30,12 @@ const bookSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    quantity: {
+      type: Number,
+      required: [true, "Book quantity is required"],
+      default: 0,
+      min: [0, "Book quantity cannot be negative"],
+    },
     createdAt: {
       type: Date,
       default: Date.now,

@@ -1,7 +1,7 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { HiViewGridAdd } from "react-icons/hi";
 import { MdOutlineManageHistory } from "react-icons/md";
-import { FaShoppingBag } from "react-icons/fa";
+import { FaChartBar, FaShoppingBag } from "react-icons/fa";
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -20,7 +20,6 @@ const DashboardLayout = () => {
         </a>
         <div className="flex-grow flex flex-col justify-between text-gray-500 bg-gray-800">
           <nav className="flex flex-col mx-4 my-6 space-y-4">
-            {/* Existing Folders Link - Consider making this a React Router Link if needed */}
             <a
               href="#"
               className="inline-flex items-center justify-center py-3 hover:text-gray-400 hover:bg-gray-700 focus:text-gray-400 focus:bg-gray-700 rounded-lg">
@@ -69,12 +68,17 @@ const DashboardLayout = () => {
               <span className="sr-only">Manage Books</span>
               <MdOutlineManageHistory className="h-6 w-6" />
             </Link>
-            {/* Add Link for Manage Orders */}
             <Link
-              to="/dashboard/manage-orders" // Define the route for managing orders
+              to="/dashboard/manage-orders"
               className="inline-flex items-center justify-center py-3 hover:text-gray-400 hover:bg-gray-700 focus:text-gray-400 focus:bg-gray-700 rounded-lg">
               <span className="sr-only">Manage Orders</span>
               <FaShoppingBag className="h-6 w-6" />
+            </Link>
+            <Link
+              to="/dashboard/statistics"
+              className="inline-flex items-center justify-center py-3 hover:text-gray-400 hover:bg-gray-700 focus:text-gray-400 focus:bg-gray-700 rounded-lg">
+              <span className="sr-only">Statistics</span>
+              <FaChartBar className="h-6 w-6" />
             </Link>
           </nav>
           <div className="inline-flex items-center justify-center h-20 w-20 border-t border-gray-700">

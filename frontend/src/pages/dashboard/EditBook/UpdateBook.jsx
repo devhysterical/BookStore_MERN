@@ -1,192 +1,271 @@
 import React, { useEffect } from "react";
-import InputField from "../addBook/InputField";
-import SelectField from "../addBook/SelectField";
-import { useForm } from "react-hook-form";
 import { useParams, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import {
   useFetchSingleBookQuery,
   useUpdateBookMutation,
 } from "../../../redux/features/books/booksApi";
 import Loading from "../../../components/Loading";
-import Swal from "sweetalert2";
-
 
 const UpdateBook = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const {
+    data: bookData,
+    isLoading: isLoadingBook,
+    isError,
+    error: bookError,
+  } = useFetchSingleBookQuery(id);
+  const [updateBook, { isLoading: isUpdating }] = useUpdateBookMutation();
 
-  const { data, isLoading, isError, refetch } = useFetchSingleBookQuery(id);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
-  // Extract the actual book data (likely nested under a property)
-  const bookData = data?.book || data;
-
-  console.log("Book data received:", bookData); // For debugging
-
-  const [updateBook] = useUpdateBookMutation();
-  const { register, handleSubmit, setValue, reset } = useForm();
-
-  // Populate form with book data when it's available
+  // Populate form with existing book data once loaded
   useEffect(() => {
-    if (bookData) {
-      console.log("Setting form values with:", bookData);
-      setValue("title", bookData.title || "");
-      setValue("description", bookData.description || "");
-      setValue("category", bookData.category || "");
-      setValue("trending", Boolean(bookData.trending));
-      setValue("oldPrice", bookData.oldPrice || 0);
-      setValue("newPrice", bookData.newPrice || 0);
-      setValue("coverImage", bookData.coverImage || "");
+    if (bookData?.book) {
+      // Adjust based on your API response structure
+      const {
+        title,
+        description,
+        category,
+        trending,
+        coverImage,
+        oldPrice,
+        newPrice,
+        quantity,
+      } = bookData.book;
+      reset({
+        title,
+        description,
+        category,
+        trending,
+        coverImage,
+        oldPrice,
+        newPrice,
+        quantity,
+      }); // Include quantity
     }
-  }, [bookData, setValue]);
+  }, [bookData, reset]);
 
-  const onSubmit = async (data) => {
-    const updateBookData = {
-      title: data.title,
-      description: data.description,
-      category: data.category,
-      trending: data.trending,
-      oldPrice: Number(data.oldPrice),
-      newPrice: Number(data.newPrice),
-      coverImage: data.coverImage || bookData.coverImage,
-    };
+  const onSubmit = async (formData) => {
     try {
-      // Check if token exists first
-      const token = localStorage.getItem("token");
+      // Convert price and quantity fields back to numbers if needed by backend/validation
+      const dataToUpdate = {
+        ...formData,
+        oldPrice: parseFloat(formData.oldPrice),
+        newPrice: parseFloat(formData.newPrice),
+        quantity: parseInt(formData.quantity, 10), // Ensure quantity is an integer
+        trending: formData.trending === "true" || formData.trending === true, // Handle boolean conversion if needed
+      };
 
-      if (!token) {
-        Swal.fire({
-          title: "Authentication Error",
-          text: "You are not logged in. Please log in to update books.",
-          icon: "error",
-        });
-        navigate("/login"); // Redirect to login
-        return;
-      }
-      // const result = await updateBook({ id, ...updateBookData }).unwrap();
-      await updateBook({ id, ...updateBookData }).unwrap();
-      Swal.fire({
-        title: "Book Updated",
-        text: "Your book is updated successfully!",
-        icon: "success",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Back to Books",
-        cancelButtonText: "Stay Here",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          navigate("/dashboard/manage-books");
-        }
-      });
-      await refetch();
-    } catch (error) {
-      console.error("Failed to update book:", error);
+      // Remove fields that shouldn't be sent or are empty if necessary
+      // e.g., if coverImage is not changed, don't send it
 
-      // Handle different error scenarios
-      if (error.status === 403 || error.response?.status === 403) {
-        Swal.fire({
-          title: "Permission Denied",
-          text: "You don't have permission to update this book. Please log in with an admin account.",
-          icon: "error",
-        });
-        // Optional: Redirect to login page
-        // navigate("/login");
-      } else {
-        Swal.fire({
-          title: "Update Failed",
-          text:
-            error.data?.message ||
-            error.response?.data?.message ||
-            "Failed to update book",
-          icon: "error",
-        });
-      }
+      await updateBook({ id, data: dataToUpdate }).unwrap();
+      toast.success("Book updated successfully!");
+      navigate("/dashboard/manage-books"); // Navigate back to manage page
+    } catch (err) {
+      toast.error(`Failed to update book: ${err?.data?.message || err.error}`);
     }
   };
 
-
-  if (isLoading) return <Loading />;
+  if (isLoadingBook) return <Loading />;
   if (isError)
     return (
-      <div className="text-red-500 text-center p-4">
-        Error fetching book data
+      <div className="text-red-500 text-center mt-10">
+        Error loading book details:{" "}
+        {bookError?.data?.message || bookError.error}
       </div>
     );
+  if (!bookData?.book)
+    return <div className="text-center mt-10">Book not found.</div>; // Handle case where book doesn't exist
 
   return (
-    <div className="max-w-lg mx-auto md:p-6 p-3 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Update Book</h2>
+    <div className="container mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-6 text-center">Update Book</h2>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="max-w-lg mx-auto bg-white p-8 shadow-md rounded-lg space-y-4">
+        {/* Title */}
+        <div>
+          <label
+            htmlFor="title"
+            className="block text-sm font-medium text-gray-700">
+            Title
+          </label>
+          <input
+            type="text"
+            id="title"
+            {...register("title", { required: "Title is required" })}
+            className="input input-bordered w-full"
+          />
+          {errors.title && (
+            <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
+          )}
+        </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <InputField
-          label="Title"
-          name="title"
-          placeholder="Enter book title"
-          register={register}
-        />
+        {/* Description */}
+        <div>
+          <label
+            htmlFor="description"
+            className="block text-sm font-medium text-gray-700">
+            Description
+          </label>
+          <textarea
+            id="description"
+            {...register("description", {
+              required: "Description is required",
+            })}
+            className="textarea textarea-bordered w-full"
+            rows="3"></textarea>
+          {errors.description && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.description.message}
+            </p>
+          )}
+        </div>
 
-        <InputField
-          label="Description"
-          name="description"
-          placeholder="Enter book description"
-          type="textarea"
-          register={register}
-        />
+        {/* Category */}
+        <div>
+          <label
+            htmlFor="category"
+            className="block text-sm font-medium text-gray-700">
+            Category
+          </label>
+          <input
+            type="text"
+            id="category"
+            {...register("category", { required: "Category is required" })}
+            className="input input-bordered w-full"
+          />
+          {errors.category && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.category.message}
+            </p>
+          )}
+        </div>
 
-        <SelectField
-          label="Category"
-          name="category"
-          options={[
-            { value: "", label: "Choose A Category" },
-            { value: "business", label: "Business" },
-            { value: "technology", label: "Technology" },
-            { value: "fiction", label: "Fiction" },
-            { value: "horror", label: "Horror" },
-            { value: "adventure", label: "Adventure" },
-          ]}
-          register={register}
-        />
-        <div className="mb-4">
-          <label className="inline-flex items-center">
+        {/* Cover Image URL */}
+        <div>
+          <label
+            htmlFor="coverImage"
+            className="block text-sm font-medium text-gray-700">
+            Cover Image URL
+          </label>
+          <input
+            type="text"
+            id="coverImage"
+            {...register("coverImage", { required: "Image URL is required" })}
+            className="input input-bordered w-full"
+          />
+          {errors.coverImage && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.coverImage.message}
+            </p>
+          )}
+        </div>
+
+        {/* Prices */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label
+              htmlFor="oldPrice"
+              className="block text-sm font-medium text-gray-700">
+              Old Price
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              id="oldPrice"
+              {...register("oldPrice", {
+                required: "Old price is required",
+                valueAsNumber: true,
+              })}
+              className="input input-bordered w-full"
+            />
+            {errors.oldPrice && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.oldPrice.message}
+              </p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="newPrice"
+              className="block text-sm font-medium text-gray-700">
+              New Price
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              id="newPrice"
+              {...register("newPrice", {
+                required: "New price is required",
+                valueAsNumber: true,
+              })}
+              className="input input-bordered w-full"
+            />
+            {errors.newPrice && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.newPrice.message}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* --- Add Quantity Field --- */}
+        <div>
+          <label
+            htmlFor="quantity"
+            className="block text-sm font-medium text-gray-700">
+            Quantity
+          </label>
+          <input
+            type="number"
+            id="quantity"
+            {...register("quantity", {
+              required: "Quantity is required",
+              valueAsNumber: true, // Ensure value is treated as number
+              min: { value: 0, message: "Quantity cannot be negative" }, // Add validation
+            })}
+            className="input input-bordered w-full"
+          />
+          {errors.quantity && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.quantity.message}
+            </p>
+          )}
+        </div>
+        {/* --- End Quantity Field --- */}
+
+        {/* Trending */}
+        <div className="form-control">
+          <label className="label cursor-pointer justify-start space-x-2">
             <input
               type="checkbox"
               {...register("trending")}
-              className="rounded text-blue-600 focus:ring focus:ring-offset-2 focus:ring-blue-500"
+              className="checkbox checkbox-primary"
             />
-            <span className="ml-2 text-sm font-semibold text-gray-700">
-              Trending
-            </span>
+            <span className="label-text">Mark as Trending</span>
           </label>
         </div>
 
-        <InputField
-          label="Old Price"
-          name="oldPrice"
-          type="number"
-          placeholder="Old Price"
-          register={register}
-        />
-
-        <InputField
-          label="New Price"
-          name="newPrice"
-          type="number"
-          placeholder="New Price"
-          register={register}
-        />
-
-        <InputField
-          label="Cover Image URL"
-          name="coverImage"
-          type="text"
-          placeholder="Cover Image URL"
-          register={register}
-        />
-
+        {/* Submit Button */}
         <button
           type="submit"
-          className="w-full py-2 bg-blue-500 text-white font-bold rounded-md">
-          Update Book
+          className="btn btn-primary w-full"
+          disabled={isUpdating}>
+          {isUpdating ? (
+            <span className="loading loading-spinner"></span>
+          ) : (
+            "Update Book"
+          )}
         </button>
       </form>
     </div>
