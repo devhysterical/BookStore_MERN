@@ -34,10 +34,9 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/stats", statsRoutes);
 
-
 async function main() {
   await mongoose.connect(process.env.DB_URL);
-  app.use("/", (req, res) => {
+  app.get("/", (req, res) => {
     res.send("BookStore API is running...");
   });
 }

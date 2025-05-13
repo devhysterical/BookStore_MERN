@@ -4,9 +4,8 @@ import getBaseUrl from "../../../utils/baseURL";
 const booksApi = createApi({
   reducerPath: "booksApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `${getBaseUrl()}/api/books`, // Assuming your book routes are under /api/books
+    baseUrl: `${getBaseUrl()}/api/books`,
     prepareHeaders: (headers, { getState }) => {
-      // Add authorization token if needed for book management
       const token = localStorage.getItem("token");
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
@@ -14,44 +13,41 @@ const booksApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Book"], // Define tag type for caching
+  tagTypes: ["Book"],
   endpoints: (builder) => ({
     // Query to fetch all books
     fetchAllBooks: builder.query({
-      query: () => "/", // Calls GET /api/books
-      providesTags: ["Book"], // Provides tag for caching invalidation
-      // Quantity should be included by default from the backend
+      query: () => "/",
+      providesTags: ["Book"],
     }),
 
     // Query to fetch a single book
     fetchSingleBook: builder.query({
-      query: (id) => `/${id}`, // Calls GET /api/books/:id
+      query: (id) => `/${id}`,
       providesTags: (result, error, id) => [{ type: "Book", id }],
-      // Quantity should be included by default
     }),
 
     // Mutation to add a new book
     addBook: builder.mutation({
       query: (newBookData) => ({
-        url: "/",
+        url: "/create-book",
         method: "POST",
-        body: newBookData, // Ensure this includes quantity when adding
+        body: newBookData,
       }),
-      invalidatesTags: ["Book"], // Invalidate cache after adding
+      invalidatesTags: ["Book"],
     }),
 
     // Mutation to update a book
     updateBook: builder.mutation({
-      // Expects an object like { id: bookId, data: { field: value, ... } }
       query: ({ id, data }) => ({
-        url: `/${id}`,
-        method: "PUT", // Or PATCH depending on your backend route
-        body: data, // 'data' should contain the fields to update, including 'quantity'
+        url: `/edit/${id}`,
+        method: "PUT",
+        body: data,
       }),
       invalidatesTags: (result, error, { id }) => [
         { type: "Book", id },
         "Book",
-      ], // Invalidate specific book and the list
+      ],
     }),
 
     // Mutation to delete a book
@@ -62,6 +58,15 @@ const booksApi = createApi({
       }),
       invalidatesTags: ["Book"],
     }),
+
+    // Query to search books
+    searchBooks: builder.query({
+      query: (searchTerm) => `search?q=${encodeURIComponent(searchTerm)}`,
+      providesTags: (result = [], error, searchTerm) => [
+        ...result.map(({ _id }) => ({ type: "Book", id: _id })),
+        { type: "Book", id: "SEARCH_LIST" },
+      ],
+    }),
   }),
 });
 
@@ -71,6 +76,7 @@ export const {
   useAddBookMutation,
   useUpdateBookMutation,
   useDeleteBookMutation,
+  useSearchBooksQuery,
 } = booksApi;
 
 export default booksApi;

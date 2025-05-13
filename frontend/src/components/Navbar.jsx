@@ -1,5 +1,5 @@
 // import React from 'react'
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { HiBars3 } from "react-icons/hi2";
 import { HiOutlineSearch } from "react-icons/hi";
 import { HiOutlineUserCircle } from "react-icons/hi2";
@@ -20,6 +20,8 @@ const navigation = [
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
   const cartItems = useSelector((state) => state.cart.cartItems);
 
@@ -30,6 +32,16 @@ const Navbar = () => {
       await logout();
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleSearchInputChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleSearchSubmit = (event) => {
+    if (event.key === "Enter" && searchQuery.trim() !== "") {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
@@ -50,6 +62,9 @@ const Navbar = () => {
               type="text"
               placeholder="Search"
               className="bg-[#EAEAEA] w-full py-1 md:px-8 px-6 rounded-md focus:outline-none"
+              value={searchQuery}
+              onChange={handleSearchInputChange}
+              onKeyDown={handleSearchSubmit}
             />
           </div>
         </div>

@@ -10,6 +10,9 @@ import { Provider } from "react-redux";
 
 import "sweetalert2/dist/sweetalert2.js";
 
+import SearchResultsPage from "./pages/SearchResultsPage";
+import Home from "./pages/home/Home.jsx";
+
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <RouterProvider router={router} />

@@ -44,37 +44,42 @@ const getSingleBook = async (req, res) => {
 const UpdateBook = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = req.body; // Data from frontend, should include quantity
-
-    console.log("Received update data:", updateData); // <-- Add log here
-
-    // Ensure quantity is treated as a number if sent as string
+    const updateData = req.body;
     if (updateData.quantity !== undefined) {
-      updateData.quantity = parseInt(updateData.quantity, 10);
-      if (isNaN(updateData.quantity)) {
-        // Handle error if quantity is not a valid number
-        return res.status(400).send({ message: "Invalid quantity format." });
+      const parsedQuantity = parseInt(updateData.quantity, 10);
+      if (isNaN(parsedQuantity) || parsedQuantity < 0) {
+        return res
+          .status(400)
+          .send({
+            message: "Invalid quantity format. Must be a non-negative number.",
+          });
       }
+      updateData.quantity = parsedQuantity;
     }
 
     const updatedBook = await Book.findByIdAndUpdate(
       id,
-      updateData,
-      { new: true, runValidators: true } // <-- Crucial options
+      { $set: updateData },
+      { new: true, runValidators: true }
     );
 
     if (!updatedBook) {
-      return res.status(404).send({ message: "Book not found" });
+      return res.status(404).send({ message: "Book not found for update." });
     }
 
-    console.log("Updated book data:", updatedBook); // <-- Add log here
-    res.status(200).send({ book: updatedBook }); // Send updated book back
-  } catch (error) {
-    console.error("Error while updating a book", error);
-    // Send back validation errors if they occur
     res
-      .status(400)
-      .send({ message: "Failed to update book", error: error.message });
+      .status(200)
+      .send({ message: "Book updated successfully", book: updatedBook });
+  } catch (error) {
+    console.error("Error while updating a book:", error);
+    if (error.name === "ValidationError") {
+      return res
+        .status(400)
+        .send({ message: "Validation failed", errors: error.errors });
+    }
+    res
+      .status(500)
+      .send({ message: "Failed to update a book. " + error.message });
   }
 };
 

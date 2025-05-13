@@ -160,10 +160,7 @@ const ManageOrdersPage = () => {
                         aria-label={`Update status for order ${order._id}`}>
                         <option value="Pending">Pending</option>
                         <option value="Confirmed">Confirmed</option>
-                        <option value="Shipped">Shipped</option>
-                        <option value="Delivered">Delivered</option>
                         <option value="Failed">Failed</option>
-                        <option value="Cancelled">Cancelled</option>
                       </select>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

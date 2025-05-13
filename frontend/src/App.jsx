@@ -3,6 +3,7 @@ import "./App.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import AuthProvider from "./context/AuthContext";
+import SearchResultsPage from "./pages/SearchResultsPage";
 
 function App() {
   return (

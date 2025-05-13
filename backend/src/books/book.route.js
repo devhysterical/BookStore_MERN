@@ -8,6 +8,7 @@ const {
   deleteABook,
 } = require("./book.controller");
 const verifyAdminToken = require("../middleware/verifyAdminToken");
+const Book = require("./book.model"); // Your Book model
 
 // Logic: frontend => backend server => controller => book schema => database => send to server => back to frontend
 
@@ -50,5 +51,31 @@ router.put("/edit/:id", verifyAdminToken, UpdateBook);
  * @access Public
  */
 router.delete("/:id", verifyAdminToken, deleteABook);
+
+// Search method
+/**
+ * @route GET /books/search
+ * @description Search for books in the database
+ * @access Public
+ */
+router.get("/search", async (req, res) => {
+  try {
+    const searchTerm = req.query.q;
+    if (!searchTerm) {
+      return res.status(400).json({ message: "Search term is required" });
+    }
+    const books = await Book.find({
+      $or: [
+        { title: { $regex: searchTerm, $options: "i" } },
+        { author: { $regex: searchTerm, $options: "i" } },
+      ],
+    });
+
+    res.json(books);
+  } catch (error) {
+    console.error("Error searching books:", error);
+    res.status(500).json({ message: "Server error during book search" });
+  }
+});
 
 module.exports = router;
